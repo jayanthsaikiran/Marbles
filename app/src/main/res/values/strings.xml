@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Marbles</string>
+    <string name="date">Date</string>
 </resources>
