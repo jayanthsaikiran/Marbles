@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 ScrollView s = findViewById(R.id.scroll);
                 s.fullScroll(ScrollView.FOCUS_DOWN);
                 count++;
-                d = new Data("sno","s1","s2","l11","l12","l21","l22","l31","l32","area");
+                d = new Data("sno", "s1", "s2", "l11", "l12", "l21", "l22", "l31", "l32", "area");
 
                 addrow(d);
 
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     if (temp.get(i).contains("Total")) {
                         temp_table_count += 1;
                         Log.i("xyaa", "Reached " + Integer.toString(i) + " " + temp.get(i));
-                        i+=1;
+                        i += 1;
                         main = new JSONArray();
 
                         JSONObject item = new JSONObject();
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             //Log.i("xyaa",main.toString(4));
                             parent.put("table" + Integer.toString(temp_table_count), main);
-                            Log.i("xyaa","Reached here"+Integer.toString(i)+" "+temp.get(i));
+                            Log.i("xyaa", "Reached here" + Integer.toString(i) + " " + temp.get(i));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -162,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Log.i("xyaa", parent.toString(4));
                     writeToFile(parent.toString());
-                    readFromFile();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -177,54 +177,102 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ArrayList<String> temp = new ArrayList<String>();
                 for (EditText editText : editTexts) {
-                    //Log.i("xyaa",editText.getText().toString());
                     temp.add(editText.getText().toString());
                 }
                 Log.i("xyaa", "length of temp" + temp.size());
                 int temp_table_count = 1;
                 main = new JSONArray();
 
+                double total_area = 0;
                 for (int i = 0; i < temp.size() && i + 10 <= temp.size(); ) {
                     if (temp.get(i).contains("Total")) {
                         temp_table_count += 1;
-                        Log.i("xyaa", "Reached " + Integer.toString(i) + " " + temp.get(i));
-                        i+=1;
-                        JSONObject item = new JSONObject();
+                        i += 1;
+
+                        int s1 = 0, s2 = 0, l11 = 0, l12 = 0, l21 = 0, l22 = 0, l31 = 0, l32 = 0;
                         try {
-                            item.put("SNO", temp.get(i));
-                            item.put("size1", temp.get(i + 1));
-                            item.put("size2", temp.get(i + 2));
-                            item.put("less1_1", temp.get(i + 3));
-                            item.put("less1_2", temp.get(i + 4));
-                            item.put("less2_1", temp.get(i + 5));
-                            item.put("less2_2", temp.get(i + 6));
-                            item.put("less3_1", temp.get(i + 7));
-                            item.put("less3_2", temp.get(i + 8));
-                            item.put("area", temp.get(i + 9));
-                            i += 10;
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            if (!temp.get(i + 1).equals("s1")) {
+                                s1 = Integer.parseInt(temp.get(i + 1));
+                            }
+                            if (!temp.get(i + 2).equals("s2")) {
+                                s2 = Integer.parseInt(temp.get(i + 2));
+                            }
+                            if (!temp.get(i + 3).equals("l11")) {
+                                l11 = Integer.parseInt(temp.get(i + 3));
+                            }
+                            if (!temp.get(i + 4).equals("l12")) {
+                                l12 = Integer.parseInt(temp.get(i + 4));
+                            }
+                            if (!temp.get(i + 5).equals("l21")) {
+                                l21 = Integer.parseInt(temp.get(i + 5));
+                            }
+                            if (!temp.get(i + 6).equals("l22")) {
+                                l22 = Integer.parseInt(temp.get(i + 6));
+                            }
+                            if (!temp.get(i + 7).equals("l31")) {
+                                l31 = Integer.parseInt(temp.get(i + 7));
+                            }
+                            if (!temp.get(i + 8).equals("l32")) {
+                                l32 = Integer.parseInt(temp.get(i + 8));
+                            }
                         }
-                        main.put(item);
-
-                        try {
-                            //Log.i("xyaa",main.toString(4));
-                            parent.put("table" + Integer.toString(temp_table_count), main);
-                            Log.i("xyaa","Reached here"+Integer.toString(i)+" "+temp.get(i));
-
-                        } catch (JSONException e) {
+                        catch (NumberFormatException e){
                             e.printStackTrace();
+                            Toast.makeText(getApplicationContext(), "Number Format exception", Toast.LENGTH_SHORT).show();
                         }
+                        double value = (s1 * s2) - ((l11 * l12) + (l21 * l22) + (l31 * l32));
+                        value = value /10000;
+                        DecimalFormat dec = new DecimalFormat("#0.00");
+                        editTexts.get(i + 9).setText(dec.format(value).toString());
+                        editTexts.get(i-1).setText(String.valueOf(total_area));
+
+                        total_area = Double.valueOf(dec.format(value));
+                        i += 10;
 
                     } else {
-//                        Log.i("xyaa", "inside" + Integer.toString(i) + " " + temp.get(i));
-                        i = check(i, temp);
+                        int s1 = 0, s2 = 0, l11 = 0, l12 = 0, l21 = 0, l22 = 0, l31 = 0, l32 = 0;
                         try {
-                            parent.put("table" + Integer.toString(temp_table_count), main);
-                        } catch (JSONException e) {
+                            if (!temp.get(i + 1).equals("s1")) {
+                                s1 = Integer.parseInt(temp.get(i + 1));
+                            }
+                            if (!temp.get(i + 2).equals("s2")) {
+                                s2 = Integer.parseInt(temp.get(i + 2));
+                            }
+                            if (!temp.get(i + 3).equals("l11")) {
+                                l11 = Integer.parseInt(temp.get(i + 3));
+                            }
+                            if (!temp.get(i + 4).equals("l12")) {
+                                l12 = Integer.parseInt(temp.get(i + 4));
+                            }
+                            if (!temp.get(i + 5).equals("l21")) {
+                                l21 = Integer.parseInt(temp.get(i + 5));
+                            }
+                            if (!temp.get(i + 6).equals("l22")) {
+                                l22 = Integer.parseInt(temp.get(i + 6));
+                            }
+                            if (!temp.get(i + 7).equals("l31")) {
+                                l31 = Integer.parseInt(temp.get(i + 7));
+                            }
+                            if (!temp.get(i + 8).equals("l32")) {
+                                l32 = Integer.parseInt(temp.get(i + 8));
+                            }
+                        }
+                        catch(NumberFormatException e){
                             e.printStackTrace();
                         }
+
+
+                        double value = (s1 * s2) - ((l11 * l12) + (l21 * l22) + (l31 * l32));
+                        DecimalFormat dec = new DecimalFormat("#0.00");
+                        value = value /10000;
+
+                        editTexts.get(i + 9).setText(dec.format(value).toString());
+                        total_area += Double.valueOf(dec.format(value));
+                        i += 10;
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            Toast.makeText(getApplicationContext(), "Strings", Toast.LENGTH_SHORT).show();
+//                        }
                     }
                 }
 
@@ -247,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -260,16 +308,15 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 ActivityCompat.requestPermissions(this,
-                        new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
             }
-        }
-        else {
-            Log.i("xyaa","Permission granted");
+        } else {
+            Log.i("xyaa", "Permission granted");
         }
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == STORAGE_PERMISSION_CODE)  {
+        if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
             } else {
@@ -279,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int check(int i, ArrayList<String> temp) {
-        if (i == 0|| i<temp.size() ) {
+        if (i == 0 || i < temp.size()) {
             Log.i("xyaa", "Running inside" + i + " " + temp.get(i));
             JSONObject item = new JSONObject();
             try {
@@ -307,8 +354,7 @@ public class MainActivity extends AppCompatActivity {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("config.txt", Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e("xyae", "File write failed: " + e.toString());
         }
     }
@@ -320,25 +366,24 @@ public class MainActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getApplicationContext().openFileInput("config.txt");
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
-                Log.i("xyaa",ret);
+                Log.i("xyaa", ret);
                 JSONObject jarray = new JSONObject(ret);
-                Log.i("xyaa","The json format is "+jarray.toString(3));
+                Log.i("xyaa", "The json format is " + jarray.toString(3));
                 updatetable(jarray);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
@@ -351,24 +396,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void updatetable(JSONObject jsonObject) throws JSONException {
 
-        JSONArray keys = jsonObject.names ();
+        JSONArray keys = jsonObject.names();
 
-        for (int i = 0; i < keys.length (); ++i) {
+        for (int i = 0; i < keys.length(); ++i) {
 
-            String key = keys.getString (i); // Here's your key
+            String key = keys.getString(i); // Here's your key
 
-            Log.i("xyj",jsonObject.getString(key));
+            Log.i("xyj", jsonObject.getString(key));
             JSONArray temp_array = new JSONArray(jsonObject.getString(key));
 
             addtable();
-            for(int j=0;j<temp_array.length();j++) {
+            for (int j = 0; j < temp_array.length(); j++) {
                 JSONObject o = (JSONObject) temp_array.get(j);
 
-                d = new Data((String) o.get("SNO"),(String) o.get("size1"),(String) o.get("size2"),(String) o.get("less1_1"),(String) o.get("less1_2"),(String) o.get("less2_1"),(String) o.get("less2_2"),(String) o.get("less3_1"),(String) o.get("less3_2"),(String) o.get("area"));
+                d = new Data((String) o.get("SNO"), (String) o.get("size1"), (String) o.get("size2"), (String) o.get("less1_1"), (String) o.get("less1_2"), (String) o.get("less2_1"), (String) o.get("less2_2"), (String) o.get("less3_1"), (String) o.get("less3_2"), (String) o.get("area"));
 
                 addrow(d);
             }
-            Log.i("xyja","Reached");
+            Log.i("xyja", "Reached");
         }
     }
 
@@ -444,7 +489,10 @@ public class MainActivity extends AppCompatActivity {
         TableRow row = new TableRow(getApplicationContext());
 
         EditText sno = new EditText(getApplicationContext());
-        sno.setText(d.getSno());
+        if (count == 0)
+            sno.setText(d.getSno());
+        else
+            sno.setText(String.valueOf(count));
         sno.setEnabled(false);
         sno.setGravity(Gravity.CENTER);
         sno.setBackground(getResources().getDrawable(R.drawable.border));
